@@ -65,6 +65,7 @@ class AuditLogListener extends AbstractPersistenceEventListener {
     String sessionAttribute
     String actorKey
     String propertyMask
+    Boolean logColumnNameAsPropertyName = false
 
     @JsonIgnore
     Closure actorClosure
@@ -416,6 +417,19 @@ class AuditLogListener extends AbstractPersistenceEventListener {
     }
 
     /**
+     * Get the property name to log.
+     * If {@link #logColumnNameAsPropertyName} is true, then get the actual column name by
+     * {@link GrailsDomainClass#getFieldName(String propertyName)}, otherwise return the propertyName itself.
+     *
+     * @param GrailsDomainClass entity
+     * @param String propertyName
+     * @return String Column Name or Property Name
+     */
+    protected String getPropertyName(GrailsDomainClass entity, String propertyName) {
+        logColumnNameAsPropertyName ? entity.getFieldName(propertyName) : propertyName
+    }
+
+    /**
      * Get the persistent value for the given domain.property. This method includes
      * some special case handling for hasMany properties, which don't follow normal rules.
      *
@@ -503,6 +517,7 @@ class AuditLogListener extends AbstractPersistenceEventListener {
             return
         }
 
+        def entity = getDomainClass(domain)
         Object persistedObjectVersion = getPersistedObjectVersion(domain, newMap, oldMap)
         newMap?.remove('version')
         oldMap?.remove('version')
@@ -518,7 +533,7 @@ class AuditLogListener extends AbstractPersistenceEventListener {
                         eventName: eventName,
                         persistedObjectId: persistedObjectId?.toString(),
                         persistedObjectVersion: persistedObjectVersion,
-                        propertyName: key,
+                        propertyName: getPropertyName(entity, key),
                         oldValue: conditionallyMask(domain, key, oldMap[key]),
                         newValue: conditionallyMask(domain, key, newMap[key]))
                     saveAuditLog(audit)
@@ -536,7 +551,7 @@ class AuditLogListener extends AbstractPersistenceEventListener {
                     eventName: eventName,
                     persistedObjectId: persistedObjectId?.toString(),
                     persistedObjectVersion: persistedObjectVersion,
-                    propertyName: key,
+                    propertyName: getPropertyName(entity, key),
                     oldValue: null,
                     newValue: conditionallyMask(domain, key, val))
                 saveAuditLog(audit)
@@ -553,7 +568,7 @@ class AuditLogListener extends AbstractPersistenceEventListener {
                     eventName: eventName,
                     persistedObjectId: persistedObjectId?.toString(),
                     persistedObjectVersion: persistedObjectVersion,
-                    propertyName: key,
+                    propertyName: getPropertyName(entity, key),
                     oldValue: conditionallyMask(domain, key, val),
                     newValue: null)
                 saveAuditLog(audit)

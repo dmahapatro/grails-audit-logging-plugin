@@ -5,6 +5,7 @@ grails {
       verbose = true
       defaultIgnore = ['version', 'lastUpdated', 'lastUpdatedBy']
       logFullClassName = true
+      logColumnNameAsPropertyName = false
       transactional = false
       defaultMask = ['ssn']
       logIds = true

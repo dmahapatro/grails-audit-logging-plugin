@@ -86,7 +86,7 @@ When called, the event handlers have access to oldObj and newObj definitions tha
         String actorKey = config.actorKey
         Closure actorClosure = config.actorClosure
         String propertyMask = config.propertyMask
-
+        boolean logColumnNameAsPropertyName = config.logColumnNameAsPropertyName
 
         applicationContext.getBeansOfType(Datastore).each { String key, Datastore datastore ->
             // Note: Some datastores do not hold config property (e.g. mongodb)
@@ -102,6 +102,7 @@ When called, the event handlers have access to oldObj and newObj definitions tha
                 listener.verbose = verbose
                 listener.nonVerboseDelete = nonVerboseDelete
                 listener.logFullClassName = logFullClassName
+                listener.logColumnNameAsPropertyName = logColumnNameAsPropertyName
                 listener.transactional = transactional
                 listener.sessionAttribute = sessionAttribute
                 listener.actorKey = actorKey
